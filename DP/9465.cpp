@@ -3,7 +3,7 @@
 #include <algorithm>
 using namespace std;
 long long d[100001][3]; //0떼지않은경우 1위쪽 땐경우 2 아래땐경우
-int p[100001][2];
+int p[100001][2]; // 스티커방향이랑 d랑 하나의 모양으로 만들어주면 쉽게 구현할 수 있음.
 int t,n;
 
 int main(void)
