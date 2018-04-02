@@ -23,5 +23,5 @@ int main(void)
 	for (int i = 0; i <= 9; i++)
 		ans += d[n][i];
 	ans %= 10007;
-	printf("%ld", ans);
+	printf("%lld", ans);
 }
