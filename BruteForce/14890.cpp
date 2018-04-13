@@ -1,94 +1,90 @@
-#include <cstdio>
-#include <cmath>
 #include <iostream>
+#include <cstdio>
+#include <algorithm>
 using namespace std;
-int N, L, countN = 0;
+int n, l;
 int map[100][100];
-int row_arr[100];
-bool labor[100];
-const int RIGHT = 0;
-const int DOWN = 1;
-void check(int index) {
-	if (index == N - 1) {
-		countN++;
+int result = 0;
+int cnt;
+void copyline(int temp[100], int line, int mode)
+{
+	if (mode == 0)
+	{
+		for (int i = 0; i < n; i++)
+			temp[i] = map[line][i];
+	}
+	if (mode == 1)
+	{
+		for (int i = 0; i < n; i++)
+			temp[i] = map[i][line];
+	}
+}
+void go(int arr[100], int start, bool cover[100])
+{
+	if (start >= n - 1)
+	{
+		result++;
 		return;
 	}
-	if (row_arr[index] == row_arr[index + 1]) {
-		if (index + L<N) {
-			if (row_arr[index] == row_arr[index + L]) {
-				check(index + 1);
-			}
-			else {
-				if (abs(row_arr[index] - row_arr[index + L]) >= 2) return;
-				if (row_arr[index] < row_arr[index + L]) {
-					for (int i = 0; i < L - 1; i++) {
-						if (row_arr[index + i] != row_arr[index + i + 1]) return;
-					}
-					for (int i = 0; i < L; i++) {
-						if (labor[index + i]) return;
-						labor[index + i] = true;
-					}
-					check(index + L);
-				}
-				else {
-					check(index + 1);
-				}
-			}
-		}
-		else
-			check(index + 1);
+	if (arr[start] == arr[start + 1])
+	{
+		go(arr, start + 1, cover);
 	}
-	else {
-		if ((abs(row_arr[index] - row_arr[index + 1]) >= 2)) return;
-		if (row_arr[index]>row_arr[index + 1]) {
-			if (L == 1) {
-				if (labor[index + 1]) return;
-				labor[index + 1] = true;
-				check(index + 1);
-			}
-			else {
-				if (index + 2 >= N) return;
-				for (int i = 0; i < L - 1; i++) {
-					if (row_arr[index + i + 1] != row_arr[index + i + 2]) return;
+	else
+	{
+		if (arr[start] > arr[start + 1])
+		{
+			for (int i = start + 1; i <= start + l; i++)
+			{
+				if (i >= n || i < 0) return;
+				if (arr[start] - arr[i] != 1 || cover[i] != false)
+				{
+					return;
 				}
-				for (int i = 0; i < L; i++) {
-					if (labor[index + i + 1]) return;
-					labor[index + i + 1] = true;
-				}
-				check(index + L);
 			}
+			for (int i = start + 1; i <= start + l; i++)
+			{
+				cover[i] = true;
+			}
+			go(arr, start + l, cover);
 		}
-		else if (row_arr[index]<row_arr[index] + 1) {
-			if (L>1 || labor[index]) return;
-			labor[index] = true;
-			check(index + 1);
+		else if (arr[start] < arr[start + 1])
+		{
+			for (int i = start; i >= start + 1 - l; i--)
+			{
+				if (i >= n || i < 0) return;
+				if (arr[start + 1] - arr[i] != 1 || cover[i] != false)
+				{
+					return;
+				}
+			}
+			for (int i = start; i >= start + 1 - l; i--)
+			{
+				cover[i] = true;
+			}
+			go(arr, start + 1, cover);
 		}
 	}
 }
-void go(int row, int col, int direction) {
-	if (direction == RIGHT) {
-		for (int i = 0; i < N; i++) {
-			row_arr[i] = map[row][i];
-			labor[i] = false;
-		}
-		check(0);
-	}
-	else {
-		for (int i = 0; i < N; i++) {
-			row_arr[i] = map[i][col];
-			labor[i] = false;
-		}
-		check(0);
-	}
-}
-int main() {
-	scanf("%d %d", &N, &L);
-	for (int i = 0; i < N; i++)
-		for (int j = 0; j < N; j++)
+int main(void)
+{
+	scanf("%d %d", &n, &l);
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
 			scanf("%d", &map[i][j]);
-	for (int i = 0; i < N; i++)
-		go(i, 0, RIGHT);
-	for (int i = 0; i < N; i++)
-		go(0, i, DOWN);
-	printf("%d\n", countN);
+		}
+	}
+	for (int i = 0; i <= 1; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			bool cover[100] = { false, };
+			int tmp[100];
+			copyline(tmp, j, i);
+			go(tmp, 0, cover);
+		}
+	}
+	printf("%d\n", result);
 }
