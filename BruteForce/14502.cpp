@@ -1,142 +1,125 @@
-#define _CRT_SECURE_NO_WARNINGS
-#include <cstdio>
 #include <iostream>
-#include <algorithm>
+#include <cstdio>
 #include <queue>
-#include <stack>
-#include <string.h>
 #include <vector>
-#include <functional>
-
-#define MAX_SIZE 8
-#define INF 0x7fffffff
-
+#include <algorithm>
 using namespace std;
-//input
-int map[MAX_SIZE][MAX_SIZE];
-int m, n;
-
-//process
-bool visit[MAX_SIZE][MAX_SIZE];
-int max_value;
-int dx[4] = { 1, 0, 0, -1 };
-int dy[4] = { 0, 1, -1, 0 };
-
-vector<pair<int, int> > virus;
-
-void input()
+int n, m;
+int map[8][8];
+bool visited[8][8];
+int result;
+vector<pair<int, int> > v;
+int dx[] = { 0,1,0,-1 };
+int dy[] = { 1,0,-1,0 };
+int scoring()
 {
-	scanf("%d %d", &m, &n);
-	for (int i = 0; i < m; i++)
+	int res = 0;
+	for (int i = 0; i < n; i++)
 	{
-		for (int j = 0; j < n; j++)
+		for (int j = 0; j < m; j++)
 		{
-			scanf("%d", &map[i][j]);
-
-			if (map[i][j] == 2) virus.push_back(make_pair(i, j));
+			if (map[i][j] == 0) res++;
+		}
+	}
+	return res;
+}
+void makebackup(int arr[][8])
+{
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			arr[i][j] = map[i][j];
 		}
 	}
 }
-
-void copy_map(int(*a)[MAX_SIZE], int(*b)[MAX_SIZE])
+void recover(int arr[][8])
 {
-	for (int i = 0; i < m; i++)
+	for (int i = 0; i < n; i++)
 	{
-		for (int j = 0; j < n; j++)
+		for (int j = 0; j < m; j++)
 		{
-			a[i][j] = b[i][j];
+			map[i][j] = arr[i][j];
 		}
 	}
-}
-
-int recovery(int(*a)[MAX_SIZE], int(*b)[MAX_SIZE])
-{
-	int ret = 0;
-	for (int i = 0; i < m; i++)
-	{
-		for (int j = 0; j < n; j++)
-		{
-			if (a[i][j] == 0) ret++;
-			a[i][j] = b[i][j];
-		}
-	}
-	return ret;
 }
 
 void bfs()
 {
-	queue<pair<int, int> > q;
-	for (int i = 0; i < virus.size(); i++) q.push(virus[i]);
-
+	queue<pair<int, int> > q; // 큐를 만들어줌
+	for (int i = 0; i < v.size(); i++)
+	{
+		q.push(v[i]); //큐에벡터값을 넣는이유 : 만약 전역으로 큐를 이용한다면 따로 복원작업을해줘야하기때문에 지역 큐를 씀
+	}
 	while (!q.empty())
 	{
 		int x = q.front().first;
 		int y = q.front().second;
 		q.pop();
-
-		for (int i = 0; i < 4; i++)
+		for (int k = 0; k < 4; k++)
 		{
-			int nx = x + dx[i];
-			int ny = y + dy[i];
+			int nx = x + dx[k];
+			int ny = y + dy[k];
+			if (0 <= nx&&nx < n && 0 <= ny&&ny < m)
+			{
+				if (map[nx][ny] == 0)
+				{
+					map[nx][ny] = 2;
+					q.push(make_pair(nx, ny));
+				}
+			}
 
-			if (nx < 0 || ny < 0 || nx >= m || ny >= n || map[nx][ny] != 0) continue;
-
-			map[nx][ny] = 2;
-			q.push(make_pair(nx, ny));
 		}
+
 	}
 }
-
-void dfs(int x, int y, int d)
+void go(int x, int y, int cnt)
 {
 	map[x][y] = 1;
-	visit[x][y] = 1;
-
-	if (d == 3)
+	visited[x][y] = true;
+	if (cnt == 3)
 	{
-		//bfs
-		int tmp[MAX_SIZE][MAX_SIZE];
-		copy_map(tmp, map);
-
-		bfs();
-		max_value = max(max_value, recovery(map, tmp));
-
-		visit[x][y] = 0;
-		map[x][y] = 0;
+		int tmp[8][8];
+		makebackup(tmp); //바이러스를 퍼트리기전 미리 배열 저장
+		bfs(); // 바이러스를 퍼트려줌
+		result = max(result, scoring()); // 0이 남아있는 최대영역 산출
+		recover(tmp); // 퍼트려준 맵은 전역배열이기때문에 따로 복원을 해줘야함
+		map[x][y] = 0; // 방문했던것들 리턴해줘야함
+		visited[x][y] = false; // 방문했던것들 리턴해줘야함
 		return;
-	}
 
-	for (int i = x; i < m; i++)
+	}
+	for (int i = x; i<n; i++) // 한점을 정했으면 그 점의 행을 포함해 n행까지만 서치 (중복방지) 1,4,5/ 4,5,1/ 5,4,1은 전부같은 경우
 	{
-		for (int j = 0; j < n; j++)
+		for (int j = 0; j < m; j++)
 		{
-			if (visit[i][j] || map[i][j] != 0) continue;
-			dfs(i, j, d + 1);
+			if (visited[i][j] || map[i][j] != 0) continue;
+			go(i, j, cnt + 1);
 		}
 	}
+	map[x][y] = 0; //방문했던것들 리턴해줘야함
+	visited[x][y] = false; //방문했던것들 리턴해줘야함
 
-	map[x][y] = 0;
-	visit[x][y] = 0;
 }
-
-void process()
+int main(void)
 {
-	for (int i = 0; i < m; i++)
-	{
-		for (int j = 0; j < n; j++)
+	scanf("%d %d", &n, &m);
+	for (int i = 0; i<n; i++)
+		for (int j = 0; j < m; j++)
 		{
-			if (map[i][j] != 0) continue;
-			dfs(i, j, 1);
+			scanf("%d", &map[i][j]);
+			if (map[i][j] == 2)
+			{
+				v.push_back(make_pair(i, j));
+			}
 		}
-	}
 
-	printf("%d\n", max_value);
-}
+	for (int i = 0; i<n; i++) // 모든 점에서 탐색을 시도
+		for (int j = 0; j < m; j++)
+		{
+			if (map[i][j] == 0)
+				go(i, j, 1);
+		}
 
-int main()
-{
-	input();
-	process();
-
-	return 0;
+	printf("%d\n", result);
 }
