@@ -18,6 +18,5 @@ public:
             if(rooms[_room][i]>=0&&is_opened[rooms[_room][i]]==false)
                 go(rooms, is_opened, rooms[_room][i]);
         }
-    }
-    
+    }  
 };
