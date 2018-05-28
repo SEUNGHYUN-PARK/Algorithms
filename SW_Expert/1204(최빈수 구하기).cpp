@@ -1,11 +1,3 @@
-//
-//  1204(최빈수 구하기).cpp
-//  Algorithm
-//
-//  Created by 박승현 on 2018. 5. 28..
-//  Copyright © 2018년 박승현. All rights reserved.
-//
-
 #include <cstdio>
 #include <iostream>
 #include <algorithm>
