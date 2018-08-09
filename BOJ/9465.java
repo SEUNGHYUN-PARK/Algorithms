@@ -1,8 +1,6 @@
 import java.util.Scanner;
 
 public class Sticker {
-
-
     public static void main(String[] args) {
         long arr[][];
         Scanner scanner = new Scanner(System.in);
@@ -26,7 +24,6 @@ public class Sticker {
                 d[0][k] = Math.max(d[1][k-1],d[2][k-1])+arr[0][k];
                 d[1][k] = Math.max(d[0][k-1],d[2][k-1])+arr[1][k];
             }
-
             long ans = 0;
             ans = Math.max(d[0][n],Math.max(d[1][n],d[2][n]));
             System.out.println(ans);
