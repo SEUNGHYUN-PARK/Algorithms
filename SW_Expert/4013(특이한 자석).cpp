@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstdio>
-#include <queue>;
+#include <queue>
 using namespace std;
 
 void rotateMagnetic(int magnetic[4][8], int rodir[4], int nth)
