@@ -42,7 +42,7 @@ void go(int x, int y, bool check_de[101], int check_map[20][20], int dir,int cnt
 				}
 			}
 
-			if (rect_cnt > 3)
+			if (rect_cnt > 3) // 사각형은 세번꺾이니까 그 이상으로 꺾이는건 무의미
 				return;
 
 			if (check_map[nx][ny] == 0 && check_de[map[nx][ny]] == false)
